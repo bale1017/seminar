@@ -57,5 +57,18 @@ Zuletzt lässt sich ein Generator auch Explizit mit der `@From` Annotation setze
 
 ## Beispiel eines String Generators
 
+Ein Generator für einen bestimmten Typ erweitert eine Basisklasse
+um eine `generate` Methode, welche das zu verwendente Property bereitstellt.
 ```Java
+public class StringGen extends Generator<String> {
+
+  public StringGen() {
+    super(String.class);
+  }
+
+  @Override
+  public String generate(SourceOfRandomness rand, GenerationStatus generationStatus) {
+    return rand.nextChar('a', 'z');
+  }
+}
 ```
