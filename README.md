@@ -2,7 +2,7 @@
 
 ## Software
 
-Quickcheck ist ein für Haskel designtes Test-Framework, welches das Testen mithilfe
+Quickcheck ist ein für Haskell designtes Test-Framework, welches das Testen mithilfe
 generierter Properties erlaubt, also Tests auf einer zufällig generierten Datenmenge
 anstatt weniger ausgewähler Beispieldaten.
 
