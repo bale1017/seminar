@@ -1,4 +1,4 @@
-package de.leonardbausenwein;
+package de.leonardbausenwein.seminar;
 
 import com.pholser.junit.quickcheck.generator.GenerationStatus;
 import com.pholser.junit.quickcheck.generator.Generator;

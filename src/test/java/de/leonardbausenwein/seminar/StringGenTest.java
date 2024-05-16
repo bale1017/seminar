@@ -1,4 +1,4 @@
-package de.leonardbausenwein;
+package de.leonardbausenwein.seminar;
 
 import com.pholser.junit.quickcheck.From;
 import com.pholser.junit.quickcheck.Property;

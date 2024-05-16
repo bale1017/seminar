@@ -1,8 +1,9 @@
-package de.leonardbausenwein;
+package de.leonardbausenwein.seminar;
 
 import com.pholser.junit.quickcheck.From;
 import com.pholser.junit.quickcheck.Property;
 import com.pholser.junit.quickcheck.runner.JUnitQuickcheck;
+import java.util.List;
 import org.junit.jupiter.api.Assertions;
 import org.junit.runner.RunWith;
 
@@ -17,5 +18,10 @@ public class BeispielTest {
   @Property
   public void test(@From(StringGen.class) String s) {
     Assertions.assertEquals(s.getBytes().length, s.length());
+  }
+
+  @Property
+  public void test(@From(StringListGen.class) List<String> l) {
+    System.out.println(l);
   }
 }
