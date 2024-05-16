@@ -28,7 +28,6 @@ public class StringGen extends Generator<String> {
     for (int i = 0; i < spaceCount; i++) {
       result[i] = ' ';
     }
-    int spaceChainLen = 0;
 
     // remove all chains of spaces
     String s = new String(result);

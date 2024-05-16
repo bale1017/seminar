@@ -102,7 +102,6 @@ könnte wie folgt aussehen:
     for (int i = 0; i < spaceCount; i++) {
       result[i] = ' ';
     }
-    int spaceChainLen = 0;
 
     // Entferne alle Leerzeichen-Ketten mit mehr als 5 Zeichen.
     String s = new String(result);
