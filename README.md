@@ -169,8 +169,8 @@ Wir verwenden eine Instanz des vorher definierten String Generators, um unsere L
 
 ## Null-Werte
 
-Java verfügt über die Annotationen `@NotNull` und `@Nullable`, die verwendet werden um Parameter oder
-Rückgabewerte explizit als "möglicherweise null" oder "niemals null" kennzeichnen zu können.
+Javax verfügt über die Annotation `@Nullable`, die verwendet wird um Parameter oder
+Rückgabewerte explizit als "möglicherweise null" kennzeichnen zu können.
 
 ```Java
   @Property
@@ -179,3 +179,12 @@ Rückgabewerte explizit als "möglicherweise null" oder "niemals null" kennzeich
   }
 ```
 Hier wird die `@Nullable` Annotation entsprechend ausgewertet und der Parameter s ist möglicherweise null.
+Dies gilt nur für `javax.annotation.Nullable` und ist nicht zu verwechseln mit den Jetbrains Intellij Annotationen,
+die oft schon im Dependency-Tree zu finden sind.
+
+Generatoren können auch selbstständig in ihrer Implementierung einen null Wert zurückgeben.
+Sind Parameter zu diesen Generatoren mit `@NotNull` annotiert, scheitert die Ausführung der Tests.
+
+Null wird bei Verwendung von `@Nullable` mit einer 50% Wahrscheinlichkeit erzeugt.
+Es empfiehlt sich also vorallem bei wenigen Parametern die Verwendung von
+`@NullAllowed(probability = 0.05f)`

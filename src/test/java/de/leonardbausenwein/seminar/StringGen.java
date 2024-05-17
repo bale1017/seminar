@@ -24,9 +24,9 @@ public class StringGen extends Generator<String> {
 
     byte[] result = "-".repeat(len).getBytes(StandardCharsets.UTF_8);
 
-    // Fülle mit bis zu 10 Leerzeichen
+    // Fülle mit bis zu 10 Leerzeichen an zufälliger Position
     for (int i = 0; i < spaceCount; i++) {
-      result[i] = ' ';
+      result[r.nextInt(len)] = ' ';
     }
 
     // remove all chains of spaces
