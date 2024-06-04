@@ -35,7 +35,7 @@ public class BeispielTest {
 Wir definieren außerdem mithilfe der `@RunWith` Annotation einen JUnit Test Runner.
 Wir möchten Tests in dieser Klasse mit dem Quickcheck Test Runner ausführen.
 
-## Zuweisung von Generatoren
+## Verwendung: Zuweisung von Generatoren
 
 Generatoren müssen als solche gekennzeichnet werden.
 Generatoren für eine selbst entworfene Klasse lassen sich durch Benennung und Platzierung laden.
@@ -51,7 +51,7 @@ generieren.
 JUnit-Quickcheck erlaubt auch die Implementierung eines Services
 in `META-INF/services/com.pholster.junit.quickcheck.generator.Generator`
 
-Eine Service Registrierung ist vorallem Sinnvoll bei fremden Klassen wie String.
+Eine Service Registrierung ist vorallem Sinnvoll bei externen Klassen wie String, um innerhalb der eigenen Package-Benennung zu arbeiten.
 
 Zuletzt lässt sich ein Generator auch Explizit mit der `@From` Annotation setzen.
 
@@ -61,6 +61,8 @@ Zuletzt lässt sich ein Generator auch Explizit mit der `@From` Annotation setze
     Assertions.assertEquals(s.getBytes().length, s.length());
   }
 ```
+
+Ist ein Generator korrekt zugewiesen, lässt er sich in JUnit Tests verwenden.
 
 ## Beispiel eines String Generators
 
@@ -87,48 +89,49 @@ Ein String Generator mit den Bedingungen:
 könnte wie folgt aussehen:
 
 ```Java
-  @Override
-  public String generate(SourceOfRandomness r, GenerationStatus generationStatus) {
+@Override
+public String generate(SourceOfRandomness r, GenerationStatus generationStatus) {
 
-    // maximal 10 zeichen
-    int len = r.nextInt(40);
-    int spaceCount = r.nextInt(10);
-    spaceCount = Math.min(spaceCount, len);
+  // maximal 40 zeichen
+  int len = r.nextInt(41);
+  // maximal 10 leerzeichen
+  int spaceCount = r.nextInt(11);
+  spaceCount = Math.min(spaceCount, len);
 
-    // Erzeuge einen String der passenden Länge bestehend aus '-' Symbolen.
-    byte[] result = "-".repeat(len).getBytes(StandardCharsets.UTF_8);
+  // Erzeuge ein Byte-Array der passenden Länge (gefüllt mit 0en).
+  // Am Ende der Ausführung sollen keine 0-Werte vorhanden sein.
+  byte[] result = new byte[len];
 
-    // Fülle mit bis zu 10 Leerzeichen
-    for (int i = 0; i < spaceCount; i++) {
-      result[i] = ' ';
-    }
-
-    // Entferne alle Leerzeichen-Ketten mit mehr als 5 Zeichen.
-    String s = new String(result);
-    while (true) {
-      Matcher matcher = Pattern.compile(" {6,}").matcher(s);
-      if (!matcher.find(0)) {
-        break;
-      }
-
-      int spaces = matcher.group().length();
-      int offset = r.nextInt(spaces);
-      s = matcher.replaceFirst(" ".repeat(offset) + randomChar(r) + " ".repeat(spaces - offset - 1));
-    }
-    result = s.getBytes();
-
-    // Ersetze '-' Symbole mit Kleinbuchstaben
-    for (int i = 0; i < result.length; i++) {
-      if (result[i] == '-') {
-        result[i] = (byte) randomChar(r);
-      }
-    }
-    return new String(result);
+  // Fülle mit bis zu 10 Leerzeichen an beliebiger Stelle
+  for (int i = 0; i < spaceCount; i++) {
+    result[r.nextInt(len)] = ' ';
   }
 
-  private char randomChar(SourceOfRandomness sourceOfRandomness) {
-    return sourceOfRandomness.nextChar('a', 'z');
+  // Entferne alle Leerzeichen-Ketten mit mehr als 5 Zeichen.
+  String s = new String(result);
+  while (true) {
+    // Für faire Verteilung der Leerzeichen wird "greedy" nach Space-Ketten gesucht und zufällig zerlegt.
+    // Das passiert auf Kosten der Performance, eine Alternative wäre, jedes 6. Leerzeichen zu eliminieren.
+    // Leerzeichen wären dann allerdings statistisch öfter am Anfang des Strings zu finden.
+    Matcher matcher = Pattern.compile(" {6,}").matcher(s);
+    if (!matcher.find(0)) {
+      break;
+    }
+
+    int spaces = matcher.group().length();
+    int offset = r.nextInt(spaces);
+    s = matcher.replaceFirst(" ".repeat(offset) + randomChar(r) + " ".repeat(spaces - offset - 1));
   }
+  result = s.getBytes();
+
+  // Ersetze leere Array Felder mit Kleinbuchstaben
+  for (int i = 0; i < result.length; i++) {
+    if (result[i] == 0) {
+      result[i] = (byte) randomChar(r);
+    }
+  }
+  return new String(result);
+}
 ```
 
 ## Beispiel anhand von Listen
@@ -187,4 +190,11 @@ Sind Parameter zu diesen Generatoren mit `@NotNull` annotiert, scheitert die Aus
 
 Null wird bei Verwendung von `@Nullable` mit einer 50% Wahrscheinlichkeit erzeugt.
 Es empfiehlt sich also vorallem bei wenigen Parametern die Verwendung von
-`@NullAllowed(probability = 0.05f)`
+`@NullAllowed(probability = 0.05f)`.
+
+Für Null-Werte gibt es keine weiteren Beschränkungen: die Verantwortung für eine sinnvolle
+Rückgabe von Null-Werten liegt beim Entwickler des Generators.
+Optimaler Weise gibt ein Generator selbst nicht null zurück, da die Freiheit dann beim Entwickler
+des Tests liegt, indem dieser entsprechende Annotationen verwendet.
+
+Generatoren können und sollten jedoch Beispielsweise Kollektionen mit Null-Werten füllen.

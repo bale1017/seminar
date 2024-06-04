@@ -17,21 +17,27 @@ public class StringGen extends Generator<String> {
   @Override
   public String generate(SourceOfRandomness r, GenerationStatus generationStatus) {
 
-    // maximal 10 zeichen
-    int len = r.nextInt(40);
-    int spaceCount = r.nextInt(10);
+    // maximal 40 zeichen
+    int len = r.nextInt(41);
+    // maximal 10 leerzeichen
+    int spaceCount = r.nextInt(11);
     spaceCount = Math.min(spaceCount, len);
 
-    byte[] result = "-".repeat(len).getBytes(StandardCharsets.UTF_8);
+    // Erzeuge ein Byte-Array der passenden Länge (gefüllt mit 0en).
+    // Am Ende der Ausführung sollen keine 0-Werte vorhanden sein.
+    byte[] result = new byte[len];
 
-    // Fülle mit bis zu 10 Leerzeichen an zufälliger Position
+    // Fülle mit bis zu 10 Leerzeichen an beliebiger Stelle
     for (int i = 0; i < spaceCount; i++) {
       result[r.nextInt(len)] = ' ';
     }
 
-    // remove all chains of spaces
+    // Entferne alle Leerzeichen-Ketten mit mehr als 5 Zeichen.
     String s = new String(result);
     while (true) {
+      // Für faire Verteilung der Leerzeichen wird "greedy" nach Space-Ketten gesucht und zufällig zerlegt.
+      // Das passiert auf Kosten der Performance, eine Alternative wäre, jedes 6. Leerzeichen zu eliminieren.
+      // Leerzeichen wären dann allerdings statistisch öfter am Anfang des Strings zu finden.
       Matcher matcher = Pattern.compile(" {6,}").matcher(s);
       if (!matcher.find(0)) {
         break;
@@ -43,9 +49,9 @@ public class StringGen extends Generator<String> {
     }
     result = s.getBytes();
 
-    // Fülle mit Kleinbuchstaben
+    // Ersetze leere Array Felder mit Kleinbuchstaben
     for (int i = 0; i < result.length; i++) {
-      if (result[i] == '-') {
+      if (result[i] == 0) {
         result[i] = (byte) randomChar(r);
       }
     }
